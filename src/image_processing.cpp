@@ -1,4 +1,4 @@
-#include "image_processing.h"
+#include "ImageML_Lib/image_processing.h"
 #include <iostream>
 #include <vector>
 #include <cmath>
@@ -8,9 +8,9 @@
 // Define these before including stb_image.h and stb_image_write.h
 // This is a common practice to enable their implementations.
 #define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+#include "stb/stb_image.h" // Assuming third_party/ is an include path, and stb/ is within it
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "stb_image_write.h"
+#include "stb/stb_image_write.h" // Assuming third_party/ is an include path, and stb/ is within it
 
 // Helper function to allocate memory for an Image struct and its data
 Image *allocate_image(int width, int height, int channels) {

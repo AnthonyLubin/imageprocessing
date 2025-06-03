@@ -4,8 +4,8 @@
 #include <stdexcept> // For std::exception
 #include <iomanip>   // For std::fixed and std::setprecision
 
-#include "tensor.h"
-#include "ml_layers.h" // This should bring in Layer, ConvolutionLayer, MaxPoolingLayer, AveragePoolingLayer
+#include "ImageML_Lib/tensor.h"
+#include "ImageML_Lib/ml_layers.h" // This should bring in Layer, ConvolutionLayer, MaxPoolingLayer, AveragePoolingLayer
 
 // Helper function to print tensor summary
 void print_tensor_summary(const Tensor& t, const std::string& name) {

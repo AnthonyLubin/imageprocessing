@@ -1,158 +1,203 @@
-# C++ Image Processing and Machine Learning Layers Library
+# C++ Image Processing and Machine Learning Layers Library (ImageML_Lib)
 
 ## Overview
-This project provides two main sets of functionalities:
+This project, `ImageML_Lib`, provides two main sets of functionalities:
 1.  A basic C++ library for common image processing operations.
 2.  A set of foundational layers for building simple Machine Learning (Deep Learning) models.
 
-The implementations are kept straightforward for educational purposes.
+The implementations are kept straightforward for educational purposes. The project uses CMake for building and managing dependencies.
+
+## File Structure
+The project is organized as follows:
+*   `CMakeLists.txt`: The main CMake build script.
+*   `README.md`: This file.
+*   `include/ImageML_Lib/`: Public header files for the library.
+    *   `image_processing.h`: Declarations for image processing functions and `Image` struct.
+    *   `tensor.h`: Definition of the `Tensor` class for ML.
+    *   `ml_layers.h`: Abstract `Layer` class and concrete layer implementations (Convolution, Max Pooling, Average Pooling).
+*   `src/`: Source code for the library implementation.
+    *   `image_processing.cpp`: Implementation of image processing functions, including STB image library implementations.
+*   `examples/`: Example programs demonstrating library usage.
+    *   `main.cpp`: Demonstrates image processing functionalities.
+    *   `main_ml.cpp`: Demonstrates machine learning layer functionalities.
+*   `third_party/stb/`: Contains STB public domain header files.
+    *   `stb_image.h`: For loading images.
+    *   `stb_image_write.h`: For saving images.
 
 ---
 
-## 1. Basic Image Processing Library
+## Building and Using the Library (CMake)
 
-### Description
-This part of the project offers tools to load, manipulate, and save images.
+This project uses CMake for building the library and example applications.
 
-### Features
-*   Load images (supports common formats like PNG, JPG, BMP, TGA via `stb_image`).
-*   Save images (PNG, JPG, BMP, TGA via `stb_image_write`).
-*   Convert images to **Grayscale**.
-*   Apply a **Box Blur** filter.
-*   Detect edges using the **Sobel Operator**.
-*   Helper functions for creating blank images and freeing image memory.
+### 1. Prerequisites
+*   A C++ compiler supporting C++11 (e.g., GCC, Clang, MSVC).
+*   CMake (version 3.10 or higher).
+*   Make (or another build tool like Ninja, Visual Studio).
 
-### File Structure (Image Processing)
-*   `image_processing.h`: Header file with declarations for the `Image` struct and image processing functions.
-*   `image_processing.cpp`: Source file with implementations for `image_processing.h`.
-*   `main.cpp`: Example program demonstrating image processing functions.
-*   `stb_image.h` / `stb_image_write.h`: Public domain libraries for image I/O, included in `image_processing.cpp`.
+### 2. Building the Library and Examples
+Follow these steps for an out-of-source build:
 
-### Dependencies (Image Processing)
-*   `stb_image.h` and `stb_image_write.h` (included in the source).
+1.  **Navigate to the project root directory.** (Where this `README.md` and `CMakeLists.txt` are located).
+2.  **Create a build directory and change into it:**
+    ```bash
+    mkdir build
+    cd build
+    ```
+3.  **Run CMake to configure the project:**
+    This command generates the build files for your chosen build system (e.g., Makefiles).
+    ```bash
+    cmake ..
+    ```
+    *   **Optional: Specify Install Location:** To install the library to a custom location (e.g., within your user directory), you can specify `CMAKE_INSTALL_PREFIX`:
+        ```bash
+        cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/your/custom/location
+        ```
+        If not specified, it defaults to system locations like `/usr/local` on Unix-like systems.
 
-### How to Compile (Image Processing Demo)
-```bash
-g++ main.cpp image_processing.cpp -o image_processor -std=c++11 -lm
-```
-*   `-std=c++11`: Specifies the C++11 standard.
-*   `-lm`: Links the math library (may be needed for `cmath` functions like `sqrt`).
+4.  **Compile the project:**
+    Use the build tool specified by your CMake generator. For Makefiles (common on Linux/macOS):
+    ```bash
+    make
+    ```
+    Alternatively, you can use CMake's build tool mode, which is generator-agnostic:
+    ```bash
+    cmake --build .
+    ```
+    This will compile:
+    *   The `ImageML` shared library (e.g., `libImageML.so` or `ImageML.dll`).
+    *   The example executables: `ImageProcessorDemo` and `MLLayersDemo`.
+    These build artifacts will be located within the `build` directory (e.g., library in `build/src/` or `build/`, examples in `build/examples/`).
 
-### How to Run (Image Processing Demo)
-1.  **Prepare an input image:** Place `input.png` (or similar) in the build directory.
-2.  **Run:** `./image_processor`
-3.  **Output:** Files like `output_original.png`, `output_grayscale.png`, etc., will be generated.
+### 3. Running the Examples
 
-### Basic Usage Example (Image Processing Library)
-```cpp
-#include "image_processing.h"
-#include <iostream>
+After successful compilation, you can run the example programs directly from the `build` directory:
 
-int main() {
-    Image* my_image = load_image("my_photo.jpg");
-    if (!my_image) { /* ... error handling ... */ return 1; }
+*   **Image Processing Demo:**
+    *   You'll need an image file (e.g., `input.png`) accessible by the executable. For simplicity, you can copy one into your `build` directory or provide a full path in `examples/main.cpp`.
+    *   Run from `build` directory:
+        ```bash
+        ./examples/ImageProcessorDemo 
+        ```
+        This will generate output images (e.g., `output_original.png`) in the directory from which it's run (i.e., `build/`).
 
-    Image* gray_image = convert_to_grayscale(my_image);
-    if (gray_image) {
-        save_image(gray_image, "my_photo_grayscale.png");
-        free_image(gray_image);
+*   **Machine Learning Layers Demo:**
+    *   Run from `build` directory:
+        ```bash
+        ./examples/MLLayersDemo
+        ```
+        This will print tensor shapes and sample values to the console, demonstrating the ML layer operations.
+
+### 4. Installing the Library (Optional)
+
+If you wish to install the library and headers to your system or the custom prefix specified during CMake configuration:
+
+1.  **From within the `build` directory, run:**
+    ```bash
+    make install
+    ```
+    *   **Note:** `sudo` might be required if installing to default system locations (e.g., `sudo make install`). This is not needed if `CMAKE_INSTALL_PREFIX` was set to a user-writable path.
+
+    This will typically install:
+    *   The `ImageML` shared library to `[prefix]/lib/` (e.g., `/usr/local/lib/`).
+    *   The public headers to `[prefix]/include/ImageML_Lib/` (e.g., `/usr/local/include/ImageML_Lib/`).
+    *   The example executables to `[prefix]/bin/ImageML_Lib_examples/` (e.g., `/usr/local/bin/ImageML_Lib_examples/`).
+
+### 5. Linking Against `ImageML_Lib` in Your CMake Project
+
+Once `ImageML_Lib` is installed, you can use it in your own CMake project.
+
+1.  **Ensure your project can find the installed library and headers.**
+    *   If installed to a custom prefix, you may need to add this prefix to `CMAKE_PREFIX_PATH` when configuring your project:
+        ```bash
+        cmake -D CMAKE_PREFIX_PATH=/path/to/your/custom/location /path/to/your/project
+        ```
+    *   Alternatively, your project's `CMakeLists.txt` might need `find_package(ImageML_Lib)` if `ImageML_Lib` provided a CMake package configuration file (not implemented in this version). For now, direct linking is assumed.
+
+2.  **Example `CMakeLists.txt` for your application:**
+    ```cmake
+    cmake_minimum_required(VERSION 3.10)
+    project(MyImageApplication CXX)
+
+    set(CMAKE_CXX_STANDARD 11)
+    set(CMAKE_CXX_STANDARD_REQUIRED True)
+
+    # Option 1: If ImageML_Lib is installed in a standard system path 
+    # or CMAKE_PREFIX_PATH is set correctly.
+    # CMake should find headers and library automatically for linking.
+
+    # Option 2: Manually specify paths if needed (less ideal than CMAKE_PREFIX_PATH)
+    # include_directories(/path/to/your/custom/location/include) 
+    # link_directories(/path/to/your/custom/location/lib)
+
+    add_executable(MyImageApplication main.cpp)
+
+    # Link against the ImageML library
+    # The name "ImageML" is used as defined by add_library(ImageML ...)
+    target_link_libraries(MyImageApplication PRIVATE ImageML)
+    ```
+
+3.  **In your C++ code, include the headers:**
+    ```cpp
+    #include <ImageML_Lib/image_processing.h> // For image functions
+    #include <ImageML_Lib/tensor.h>           // For Tensor class
+    #include <ImageML_Lib/ml_layers.h>      // For Layer classes
+    #include <iostream>
+
+    int main() {
+        // Example: Using the Tensor class
+        Tensor my_tensor(1, 3, 224, 224);
+        std::cout << "Created a tensor of shape: " 
+                  << my_tensor.getN() << "x" 
+                  << my_tensor.getC() << "x" 
+                  << my_tensor.getH() << "x" 
+                  << my_tensor.getW() << std::endl;
+
+        // Example: Load an image (if ImageML is linked)
+        // Image* img = load_image("some_image.png");
+        // if (img) {
+        //     std::cout << "Loaded image with width: " << img->width << std::endl;
+        //     free_image(img);
+        // }
+        return 0;
     }
-    free_image(my_image);
-    return 0;
-}
-```
-Compile with: `g++ your_main.cpp image_processing.cpp -o your_app -std=c++11 -lm`
+    ```
 
 ---
 
-## 2. Machine Learning Layers
+## Library Components Details
 
-### Introduction
-This part of the library provides foundational building blocks (layers) for creating simple neural networks. It includes a `Tensor` class for data representation and an abstract `Layer` interface.
+### Image Processing (`image_processing.h`, `image_processing.cpp`)
+*   **`Image` Struct:** Represents an image with `width`, `height`, `channels`, and `unsigned char* data`.
+*   **Functions:**
+    *   `load_image(const char* filename)`: Loads an image.
+    *   `save_image(const Image* image, const char* filename)`: Saves an image.
+    *   `free_image(Image* image)`: Frees image memory.
+    *   `convert_to_grayscale(const Image* input_image)`
+    *   `apply_blur_filter(const Image* input_image)`
+    *   `detect_edges(const Image* input_image)`
+*   **Dependencies:** Uses `stb_image.h` and `stb_image_write.h` (included) for image I/O.
 
-### `tensor.h` - The `Tensor` Class
-*   **Purpose:** A multi-dimensional array designed for machine learning data, typically used as a 4D structure: (Batch Size, Channels, Height, Width).
-*   **Data Type:** Stores `float` values.
-*   **Key Features:**
-    *   Constructors to define shape and allocate memory (zero-initialized).
-    *   Copy and Move constructors/assignment operators for proper memory management.
-    *   `getData()`: Access to the raw data pointer.
-    *   `getN()`, `getC()`, `getH()`, `getW()`: Methods to retrieve dimensions.
-    *   `at(n, c, h, w)`: Element access with boundary checks.
-    *   `getSize()`: Total number of elements.
-    *   Destructor to free allocated memory.
+### Machine Learning Layers (`tensor.h`, `ml_layers.h`)
 
-### `ml_layers.h` - The `Layer` Interface and Implementations
+#### `Tensor` Class (`tensor.h`)
+*   **Purpose:** 4D tensor (Batch, Channels, Height, Width) storing `float` data.
+*   **Features:** Constructors, destructor, data accessors (`getData`, `at`), dimension getters (`getN`, `getC`, `getH`, `getW`), copy/move semantics.
 
-#### Abstract Base Class: `Layer`
-*   **Purpose:** Serves as an abstract base class for all neural network layers, defining a common interface.
-*   **Key Virtual Methods:**
-    *   `virtual Tensor forward(const Tensor& input) = 0;`: Defines the forward pass computation of the layer.
-    *   `virtual Tensor backward(const Tensor& output_gradient) = 0;`: Defines the backward pass (backpropagation) computation. Currently, a placeholder in implemented layers.
-*   **Other Features:**
-    *   Stores a `layer_name_` (std::string) for identification.
-    *   Virtual destructor for proper cleanup of derived classes.
+#### `Layer` Abstract Class (`ml_layers.h`)
+*   **Interface:** Defines `virtual Tensor forward(...)` and `virtual Tensor backward(...)`.
+*   **Naming:** Layers can be named for identification.
 
-#### Implemented Layers:
-
-1.  **`ConvolutionLayer`**
-    *   **Purpose:** Applies a 2D convolution operation, a core component of Convolutional Neural Networks (CNNs).
-    *   **Inherits from:** `Layer`.
-    *   **Constructor:** `ConvolutionLayer(int input_channels, int num_filters, int kernel_size, int stride = 1, int padding = 0, std::string name = "ConvolutionLayer")`
-    *   **Parameters:**
-        *   `input_channels`: Number of channels in the input tensor.
-        *   `num_filters`: Number of convolution filters (determines output channels).
-        *   `kernel_size`: Size of the square convolution kernel (e.g., 3 for 3x3).
-        *   `stride`: Step size of the kernel movement (default: 1).
-        *   `padding`: Zero-padding added to input borders (default: 0).
-    *   **Weights & Biases:** Initializes its own weights (randomly) and biases (zeros). Weights are 4D (`num_filters`, `input_channels`, `kernel_size`, `kernel_size`), biases are 1D (broadcasted from `1, num_filters, 1, 1`).
-
-2.  **`MaxPoolingLayer`**
-    *   **Purpose:** Applies 2D max pooling, reducing spatial dimensions and retaining the most active features.
-    *   **Inherits from:** `Layer`.
-    *   **Constructor:** `MaxPoolingLayer(int pool_size, int stride = -1, std::string name = "MaxPoolingLayer")`
-    *   **Parameters:**
-        *   `pool_size`: Size of the square pooling window.
-        *   `stride`: Step size of the window movement (default: `pool_size`).
-
-3.  **`AveragePoolingLayer`**
-    *   **Purpose:** Applies 2D average pooling, reducing spatial dimensions by averaging values in windows.
-    *   **Inherits from:** `Layer`.
-    *   **Constructor:** `AveragePoolingLayer(int pool_size, int stride = -1, std::string name = "AveragePoolingLayer")`
-    *   **Parameters:**
-        *   `pool_size`: Size of the square pooling window.
-        *   `stride`: Step size of the window movement (default: `pool_size`).
-
-### File Structure (Machine Learning)
-*   `tensor.h`: Contains the `Tensor` class definition.
-*   `ml_layers.h`: Contains the `Layer` abstract base class and concrete layer implementations (`ConvolutionLayer`, `MaxPoolingLayer`, `AveragePoolingLayer`).
-*   `main_ml.cpp`: Example program demonstrating the usage of the ML layers.
-
-### How to Compile (Machine Learning Demo)
-The `main_ml.cpp` file demonstrates the ML layers.
-```bash
-# For the Machine Learning Layers demonstration
-g++ main_ml.cpp image_processing.cpp -o main_ml -std=c++11 -I. -lm
-```
-*   `-I.` adds the current directory to the include path (if `tensor.h`, `ml_layers.h` are there).
-*   `image_processing.cpp` is included in the command above. While `main_ml.cpp` itself doesn't directly use image processing functions, the `Tensor` or `Layer` classes might (even if unintentionally or transitively) depend on utilities or headers that were part of `image_processing.cpp` or its environment during development. If `tensor.h` and `ml_layers.h` are fully self-contained and have no dependencies on content from `image_processing.cpp` (like `stb_image` or specific image structures), you might simplify the compilation:
-    ```bash
-    # Alternative if image_processing.cpp is not a dependency for ML components
-    # g++ main_ml.cpp -o main_ml -std=c++11 -I. -lm
-    ```
-
-### How to Run (Machine Learning Demo)
-1.  **Compile `main_ml.cpp`** using the command above.
-2.  **Run the executable:**
-    ```bash
-    ./main_ml
-    ```
-3.  **Expected Output:** The program will print to the console:
-    *   The shape and sample values of an initial input tensor.
-    *   The shape and sample values of the output tensor after passing through `ConvolutionLayer`.
-    *   The shape and sample values of the output tensor after passing through `MaxPoolingLayer`.
-    *   The shape and sample values of the output tensor after passing through `AveragePoolingLayer`.
-    This demonstrates the data flow and dimension changes through the layers.
+#### Concrete Layers (`ml_layers.h`):
+1.  **`ConvolutionLayer`**:
+    *   Applies 2D convolution.
+    *   Constructor: `ConvolutionLayer(input_channels, num_filters, kernel_size, stride, padding, name)`
+2.  **`MaxPoolingLayer`**:
+    *   Applies 2D max pooling.
+    *   Constructor: `MaxPoolingLayer(pool_size, stride, name)`
+3.  **`AveragePoolingLayer`**:
+    *   Applies 2D average pooling.
+    *   Constructor: `AveragePoolingLayer(pool_size, stride, name)`
 
 ---
-This README provides a guide to understanding, compiling, and using both the image processing and machine learning layer components of this library.
+This README provides a guide to understanding, building, installing, and using the `ImageML_Lib` library.

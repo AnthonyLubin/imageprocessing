@@ -1,5 +1,5 @@
 #include <iostream>
-#include "image_processing.h"
+#include "ImageML_Lib/image_processing.h"
 
 int main() {
     // 1. Load an image

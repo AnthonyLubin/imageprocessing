@@ -1,7 +1,7 @@
 #ifndef ML_LAYERS_H
 #define ML_LAYERS_H
 
-#include "tensor.h" // For Tensor class
+#include "ImageML_Lib/tensor.h" // For Tensor class
 #include <string>    // For std::string
 #include <utility>   // For std::move
 
