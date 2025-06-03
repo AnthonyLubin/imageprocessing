@@ -14,15 +14,15 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # For now, only image_processing.cpp contains actual compilable source code.
 # tensor.h and ml_layers.h are header-only in terms of library definition,
 # their content will be compiled as part of targets that include them (like executables).
-add_library(ImageML SHARED 
+add_library(ImageML SHARED
     src/image_processing.cpp
     # If tensor.cpp or ml_layers.cpp with non-template/non-inline code existed, add them here.
 )
 
 # Include directories for the ImageML library
-target_include_directories(ImageML 
+target_include_directories(ImageML
     PUBLIC # For headers that consumers of the library need
-        ${CMAKE_CURRENT_SOURCE_DIR}/include 
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
         # This allows #include "ImageML_Lib/header.h"
     PRIVATE # For headers needed only to compile the library itself
         ${CMAKE_CURRENT_SOURCE_DIR}/third_party
@@ -40,7 +40,7 @@ endif()
 # 1. Image Processing Demo
 add_executable(ImageProcessorDemo examples/main.cpp)
 target_link_libraries(ImageProcessorDemo PRIVATE ImageML)
-# By linking ImageML, ImageProcessorDemo inherits the PUBLIC include directories 
+# By linking ImageML, ImageProcessorDemo inherits the PUBLIC include directories
 # of ImageML, so it can find "ImageML_Lib/image_processing.h".
 
 # 2. Machine Learning Layers Demo
@@ -59,19 +59,19 @@ target_link_libraries(MLLayersDemo PRIVATE ImageML)
 install(TARGETS ImageML
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} 
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
 # Install public headers
 # This installs the contents of include/ImageML_Lib/ to ${CMAKE_INSTALL_INCLUDEDIR}/ImageML_Lib
-install(DIRECTORY include/ImageML_Lib/ 
+install(DIRECTORY include/ImageML_Lib/
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/ImageML_Lib
     FILES_MATCHING PATTERN "*.h" # Ensure only headers are installed
 )
 
 # Install example binaries (optional, but good for users)
 install(TARGETS ImageProcessorDemo MLLayersDemo
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}/ImageML_Lib_examples 
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}/ImageML_Lib_examples
     # Installs to a subdirectory like /usr/local/bin/ImageML_Lib_examples
 )
 

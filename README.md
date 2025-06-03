@@ -14,7 +14,7 @@ The project is organized as follows:
 *   `include/ImageML_Lib/`: Public header files for the library.
     *   `image_processing.h`: Declarations for image processing functions and `Image` struct.
     *   `tensor.h`: Definition of the `Tensor` class for ML.
-    *   `ml_layers.h`: Abstract `Layer` class and concrete layer implementations (Convolution, Max Pooling, Average Pooling).
+    *   `ml_layers.h`: Abstract `Layer` class and concrete layer implementations.
 *   `src/`: Source code for the library implementation.
     *   `image_processing.cpp`: Implementation of image processing functions, including STB image library implementations.
 *   `examples/`: Example programs demonstrating library usage.
@@ -67,26 +67,26 @@ Follow these steps for an out-of-source build:
     This will compile:
     *   The `ImageML` shared library (e.g., `libImageML.so` or `ImageML.dll`).
     *   The example executables: `ImageProcessorDemo` and `MLLayersDemo`.
-    These build artifacts will be located within the `build` directory (e.g., library in `build/src/` or `build/`, examples in `build/examples/`).
+    These build artifacts will be located within the `build` directory.
 
 ### 3. Running the Examples
 
-After successful compilation, you can run the example programs directly from the `build` directory:
+After successful compilation, you can run the example programs directly from the `build/examples/` directory:
 
-*   **Image Processing Demo:**
-    *   You'll need an image file (e.g., `input.png`) accessible by the executable. For simplicity, you can copy one into your `build` directory or provide a full path in `examples/main.cpp`.
+*   **Image Processing Demo (`ImageProcessorDemo`):**
+    *   You'll need an image file (e.g., `input.png`) accessible by the executable. For simplicity, you can copy one into your `build` directory or ensure `examples/main.cpp` points to a valid image path.
     *   Run from `build` directory:
         ```bash
-        ./examples/ImageProcessorDemo 
+        ./examples/ImageProcessorDemo
         ```
         This will generate output images (e.g., `output_original.png`) in the directory from which it's run (i.e., `build/`).
 
-*   **Machine Learning Layers Demo:**
+*   **Machine Learning Layers Demo (`MLLayersDemo`):**
     *   Run from `build` directory:
         ```bash
         ./examples/MLLayersDemo
         ```
-        This will print tensor shapes and sample values to the console, demonstrating the ML layer operations.
+        This program demonstrates the forward and backward passes of various layers including Convolution, Pooling, ReLU, Flatten, and Dense layers. It prints tensor shapes and sample values to the console.
 
 ### 4. Installing the Library (Optional)
 
@@ -112,7 +112,6 @@ Once `ImageML_Lib` is installed, you can use it in your own CMake project.
         ```bash
         cmake -D CMAKE_PREFIX_PATH=/path/to/your/custom/location /path/to/your/project
         ```
-    *   Alternatively, your project's `CMakeLists.txt` might need `find_package(ImageML_Lib)` if `ImageML_Lib` provided a CMake package configuration file (not implemented in this version). For now, direct linking is assumed.
 
 2.  **Example `CMakeLists.txt` for your application:**
     ```cmake
@@ -122,18 +121,18 @@ Once `ImageML_Lib` is installed, you can use it in your own CMake project.
     set(CMAKE_CXX_STANDARD 11)
     set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-    # Option 1: If ImageML_Lib is installed in a standard system path 
-    # or CMAKE_PREFIX_PATH is set correctly.
-    # CMake should find headers and library automatically for linking.
+    # Find and link ImageML_Lib. Adjust paths if installed to a non-standard location
+    # and CMAKE_PREFIX_PATH is not used.
+    # For a robust solution, ImageML_Lib could generate and install a CMake package configuration file.
+    # This example assumes ImageML_Lib's include and lib directories are discoverable.
 
-    # Option 2: Manually specify paths if needed (less ideal than CMAKE_PREFIX_PATH)
-    # include_directories(/path/to/your/custom/location/include) 
-    # link_directories(/path/to/your/custom/location/lib)
+    # If ImageML_Lib headers are installed to [prefix]/include/ImageML_Lib
+    # and the library to [prefix]/lib, these might be needed if [prefix] is not standard.
+    # target_include_directories(MyImageApplication PRIVATE /path/to/custom/location/include)
+    # target_link_directories(MyImageApplication PRIVATE /path/to/custom/location/lib)
 
     add_executable(MyImageApplication main.cpp)
 
-    # Link against the ImageML library
-    # The name "ImageML" is used as defined by add_library(ImageML ...)
     target_link_libraries(MyImageApplication PRIVATE ImageML)
     ```
 
@@ -145,20 +144,10 @@ Once `ImageML_Lib` is installed, you can use it in your own CMake project.
     #include <iostream>
 
     int main() {
-        // Example: Using the Tensor class
         Tensor my_tensor(1, 3, 224, 224);
-        std::cout << "Created a tensor of shape: " 
-                  << my_tensor.getN() << "x" 
-                  << my_tensor.getC() << "x" 
-                  << my_tensor.getH() << "x" 
-                  << my_tensor.getW() << std::endl;
-
-        // Example: Load an image (if ImageML is linked)
-        // Image* img = load_image("some_image.png");
-        // if (img) {
-        //     std::cout << "Loaded image with width: " << img->width << std::endl;
-        //     free_image(img);
-        // }
+        std::cout << "Created a tensor of shape: "
+                  << my_tensor.getN() << "x" << my_tensor.getC() << "x"
+                  << my_tensor.getH() << "x" << my_tensor.getW() << std::endl;
         return 0;
     }
     ```
@@ -169,35 +158,51 @@ Once `ImageML_Lib` is installed, you can use it in your own CMake project.
 
 ### Image Processing (`image_processing.h`, `image_processing.cpp`)
 *   **`Image` Struct:** Represents an image with `width`, `height`, `channels`, and `unsigned char* data`.
-*   **Functions:**
-    *   `load_image(const char* filename)`: Loads an image.
-    *   `save_image(const Image* image, const char* filename)`: Saves an image.
-    *   `free_image(Image* image)`: Frees image memory.
-    *   `convert_to_grayscale(const Image* input_image)`
-    *   `apply_blur_filter(const Image* input_image)`
-    *   `detect_edges(const Image* input_image)`
+*   **Functions:** `load_image`, `save_image`, `free_image`, `convert_to_grayscale`, `apply_blur_filter`, `detect_edges`.
 *   **Dependencies:** Uses `stb_image.h` and `stb_image_write.h` (included) for image I/O.
 
 ### Machine Learning Layers (`tensor.h`, `ml_layers.h`)
 
 #### `Tensor` Class (`tensor.h`)
-*   **Purpose:** 4D tensor (Batch, Channels, Height, Width) storing `float` data.
-*   **Features:** Constructors, destructor, data accessors (`getData`, `at`), dimension getters (`getN`, `getC`, `getH`, `getW`), copy/move semantics.
+*   **Purpose:** A 4D tensor (Batch, Channels, Height, Width) storing `float` data.
+*   **Core Features:** Constructors, destructor, data accessors (`getData`, `at`), dimension getters (`getN`, `getC`, `getH`, `getW`), copy/move semantics.
+*   **Key Methods / Enhancements:**
+    *   `void reshape(int n, int c, int h, int w)`: In-place method to change tensor dimensions (total element count must match).
+    *   `Tensor operator+(const Tensor& other) const`, `Tensor& operator+=(const Tensor& other)`: Element-wise addition with broadcasting support (e.g., for adding bias vectors).
+    *   `Tensor matmul(const Tensor& other) const`: Matrix multiplication for tensors interpreted as 2D matrices (where H=W=1, using N for rows, C for columns).
+    *   `Tensor transpose() const`: Transposes a tensor interpreted as a 2D matrix (swaps N and C dimensions, H=W=1).
+    *   `Tensor sum_along_axis_N() const`: Sums tensor elements along the N (batch) dimension, resulting in a tensor with N=1 (useful for aggregating bias gradients).
 
 #### `Layer` Abstract Class (`ml_layers.h`)
 *   **Interface:** Defines `virtual Tensor forward(...)` and `virtual Tensor backward(...)`.
 *   **Naming:** Layers can be named for identification.
 
 #### Concrete Layers (`ml_layers.h`):
+
 1.  **`ConvolutionLayer`**:
-    *   Applies 2D convolution.
-    *   Constructor: `ConvolutionLayer(input_channels, num_filters, kernel_size, stride, padding, name)`
+    *   **Purpose:** Applies 2D convolution.
+    *   **Constructor:** `ConvolutionLayer(input_channels, num_filters, kernel_size, stride, padding, name)`
 2.  **`MaxPoolingLayer`**:
-    *   Applies 2D max pooling.
-    *   Constructor: `MaxPoolingLayer(pool_size, stride, name)`
+    *   **Purpose:** Applies 2D max pooling.
+    *   **Constructor:** `MaxPoolingLayer(pool_size, stride, name)`
 3.  **`AveragePoolingLayer`**:
-    *   Applies 2D average pooling.
-    *   Constructor: `AveragePoolingLayer(pool_size, stride, name)`
+    *   **Purpose:** Applies 2D average pooling.
+    *   **Constructor:** `AveragePoolingLayer(pool_size, stride, name)`
+4.  **`ReLULayer`**:
+    *   **Purpose:** Applies the element-wise Rectified Linear Unit (ReLU) activation function (`output = max(0, input)`).
+    *   **Constructor:** `ReLULayer(std::string name = "ReLULayer")`.
+    *   **Key Methods:** Implements `forward()` and `backward()` (propagates gradient for positive inputs from forward pass).
+5.  **`FlattenLayer`**:
+    *   **Purpose:** Reshapes a multi-dimensional input tensor (e.g., NCHW) into a 2D tensor (`N, C*H*W, 1, 1`) suitable for dense layers.
+    *   **Constructor:** `FlattenLayer(std::string name = "FlattenLayer")`.
+    *   **Functionality:** `forward()` transforms to flattened shape; `backward()` reshapes the gradient back to the original input shape.
+6.  **`DenseLayer` (Fully Connected Layer)**:
+    *   **Purpose:** Applies a linear transformation (`output = input @ weights + biases`).
+    *   **Constructor:** `DenseLayer(int input_features, int output_features, std::string name = "DenseLayer")`.
+    *   **Parameters & Initialization:**
+        *   `weights_`: Shape `(input_features, output_features, 1, 1)`, initialized with Xavier/Glorot-like random values.
+        *   `biases_`: Shape `(1, output_features, 1, 1)`, initialized to zeros.
+    *   **Key Methods:** Implements `forward()` and `backward()` (computes gradients for input, weights, and biases). Expects a 2D-like input (shape `N, input_features, 1, 1`).
 
 ---
 This README provides a guide to understanding, building, installing, and using the `ImageML_Lib` library.
