@@ -188,6 +188,13 @@ Image *apply_blur_filter(const Image *input_image) {
     return output_image;
 }
 
+void fliphorizontal(const Image *input_image){
+    int w = input_image->width;
+    int h = input_image->height;
+    for(int i = 0; w<h; i++){
+        for(int j = 0; j<w/2; j++){
+            std::swap(Image_Data[x][y], Image_Data[w-1-x][y]);
+        }
 
 // Function to detect edges (Sobel operator)
 Image *detect_edges(const Image *input_image) {
